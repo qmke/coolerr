@@ -1,0 +1,45 @@
+local UIS = game:GetService("UserInputService")
+local mouse = game.Players.LocalPlayer:GetMouse()
+local plr = game.Players.LocalPlayer
+
+local autoguardEnabled = true
+local tpingBecauseTarget = false
+
+local function AutoGuardMain(target)
+    while tpingBecauseTarget do
+        if target and target:FindFirstChild('RightUpperArm') and target:FindFirstChild('HumanoidRootPart') then
+            local rightArmPosition = target.RightUpperArm.Position
+            local rightArmCF = CFrame.new(rightArmPosition)
+            local playerHRP = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+            
+            if playerHRP then
+                local playerHeightOffset = playerHRP.Size.Y / 2
+                local offset = Vector3.new(0, playerHeightOffset, 0)
+                local finalCFrame = rightArmCF * CFrame.new(0, playerHeightOffset, 0)
+                
+                playerHRP.CFrame = finalCFrame
+            end
+        end
+        wait(0.1)  -- Adjust the wait time as needed
+    end
+end
+
+UIS.InputEnded:Connect(function(input, processed)
+    if not autoguardEnabled then
+        return
+    end
+    
+    if processed then
+        return
+    end
+    
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        local target = mouse.Target and mouse.Target.Parent
+        if target and target:FindFirstChild('Humanoid') then
+            tpingBecauseTarget = true
+            AutoGuardMain(target)
+        else
+            tpingBecauseTarget = false
+        end
+    end
+end)
